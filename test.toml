@@ -1,0 +1,139 @@
+# pyproject.toml is a new configuration file defined in PEP 518.
+# It is design to store build system requirements, but it can also store any
+# tool configuration for your Python project, possibly replacing the need for
+# setup.cfg or other tool-specific files.
+# https://github.com/carlosperate/awesome-pyproject
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tafgen"
+requires-python = ">=3.12"
+dynamic = ["version", "dependencies", "optional-dependencies"]
+
+description = "TAF Generation Application"
+authors = [{ name = "Jason Leaver", email = "jason.leaver@us.af.mil" }]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Utilities",
+]
+
+[tool.setuptools]
+packages = [
+    "app",
+    "app.configuration",
+    "app.interface",
+    "app.instruction",
+    "app.lib",
+    "app.models",
+]
+
+[tool.setuptools.dynamic.dependencies]
+file = ["requirements.txt"]
+
+[tool.setuptools.dynamic.optional-dependencies.tests]
+file = ["tests/requirements.txt"]
+
+[tool.setuptools.dynamic.optional-dependencies.stubs]
+file = ["docs/requirements-stubs.txt"]
+
+[tool.setuptools.dynamic.optional-dependencies.lint]
+file = ["docs/requirements-lint.txt"]
+
+[tool.setuptools.dynamic.optional-dependencies.all]
+file = [
+    "requirements.txt",
+    "tests/requirements.txt",
+    "docs/requirements-stubs.txt",
+    "docs/requirements-lint.txt",
+]
+
+[tool.setuptools.package-data]
+tafgen = ["configuration/*"]
+
+[tool.setuptools_scm]
+write_to = "app/_version.py"
+
+[tool.pytest]
+testpaths = ["tests/"]
+
+[tool.pytest.ini_options]
+markers = ["overwatch_response"]
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "basic"
+root = "app/"
+reportMissingImports = false
+reportMissingTypeStubs = false
+pythonPlatform = "Linux"
+include = ["app/"]
+exclude = ["**/node_modules", "**/__pycache__"]
+defineConstant = { DEBUG = true }
+venv = ".venv/"
+
+[tool.mypy]
+python_version = "3.12"
+warn_unused_configs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+check_untyped_defs = true
+# enable_incomplete_features = true
+
+[tool.black]
+target-version = ['py312']
+line-length = 119
+include = '(app|tests)\/.*(\.py|\.pyi)'
+
+[tool.isort]
+profile = "black"
+combine_as_imports = true
+src_paths = ["app", "tests"]
+line_length = 119
+
+[tool.ruff]
+target-version = "py312"
+line-length = 119
+fix = true
+
+[tool.ruff.lint]
+ignore = [
+    "E731", # do not assign a lambda expression, use a def
+    "E402", # module level import not at top of file
+    "E402", # module level import not at top of file
+    "E501", # line too long
+    "E741", # do not use variables named 'l', 'O', or 'I'
+]
+
+[tool.coverage.run]
+branch = true
+omit = ["app/_typing.py"]
+source = ["app/"]
+
+[tool.coverage.report]
+ignore_errors = false
+show_missing = true
+exclude_lines = [
+    # Have to re-enable the standard pragma
+    "pragma: no cover",
+    # Don't complain about missing debug-only code:s
+    # "def __repr__",
+    # "if self.debug",
+    # Don't complain if tests don't hit defensive assertion code:
+    # "raise AssertionError",
+    "raise NotImplementedError",
+    "AbstractMethodError",
+    # Don't complain if non-runnable code isn't run:
+    # "if 0:",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
