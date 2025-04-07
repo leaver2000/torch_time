@@ -48,6 +48,61 @@ class Datetime(NamedTuple):
     def double(self) -> Self:
         return self.__class__(*map(lambda x: x.double(), self))
 
+    @property
+    def year(self) -> torch.Tensor:
+        return self.Y
+
+    @property
+    def month(self) -> torch.Tensor:
+        return self.M
+
+    @property
+    def day(self) -> torch.Tensor:
+        return self.D
+
+    @property
+    def hour(self) -> torch.Tensor:
+        return self.h
+
+    @property
+    def minute(self) -> torch.Tensor:
+        return self.m
+
+    @property
+    def second(self) -> torch.Tensor:
+        return self.s
+
+    @property
+    def nanosecond(self) -> torch.Tensor:
+        return self.ns
+
+    @property
+    def shape(self) -> tuple[int, ...]:
+        return self.Y.shape
+
+    def numpy(self) -> np.recarray:
+        shape = self.shape
+        dtype = np.dtype(
+            [
+                ("Y", np.int32),
+                ("M", np.int32),
+                ("D", np.int32),
+                ("h", np.int32),
+                ("m", np.int32),
+                ("s", np.int32),
+                ("ns", np.int32),
+            ]
+        )
+        rec = np.recarray(shape, dtype=dtype)
+        rec["Y"] = self.Y.numpy()
+        rec["M"] = self.M.numpy()
+        rec["D"] = self.D.numpy()
+        rec["h"] = self.h.numpy()
+        rec["m"] = self.m.numpy()
+        rec["s"] = self.s.numpy()
+        rec["ns"] = self.ns.numpy()
+        return rec
+
 
 def unixtime(x: UnixTimestampLike, /, precision: Precision | None = None) -> torch.Tensor:
     """Convert a sequence of datetime like objects or unix timestamps to a tensor of unix timestamps.
@@ -149,7 +204,7 @@ def datetime(dt: DatetimeLike, /, precision: Precision | None = None) -> Datetim
     M = f + 3 - (f >= 10).long() * 12  # [1, 12]
     Y = Y + (M <= 2).long()  # Adjust the year for Jan/Feb
 
-    return Datetime(Y, M, D, h, m, s, ns).double()
+    return Datetime(Y, M, D, h, m, s, ns)
 
 
 def julian_day_time(dt: DatetimeLike, /, precision: Precision | None = None) -> Pair[torch.Tensor]:
